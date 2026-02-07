@@ -1,5 +1,6 @@
 package org.example.focustimercv;
 
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,21 +23,27 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.videoio.VideoCapture;
 
+
 import java.io.IOException;
+
 
 public class SceneController {
     private Stage stage;
     private Scene scene;
     private Parent root;
 
+
     private CascadeClassifier cascadeFaceDetector; //classifier object from the opencv folder
     private MatOfRect matOfRect;
+
 
     @FXML
     private ImageView webcamView;  // This should match the fx:id in your hello-view.fxml
 
+
     private VideoCapture camera;
     private volatile boolean running = false;
+
 
     @FXML
     public void onButtonClick(ActionEvent event) throws IOException {
@@ -47,18 +54,22 @@ public class SceneController {
         stage.show();
     }
 
+
     @FXML
     public void startCamera(ActionEvent event){
         System.out.println("Start camera button clicked!");
+
 
         if (running) {
             System.out.println("Camera already running");
             return;
         }
 
+
         cascadeFaceDetector = new CascadeClassifier();
-        String xmlPath = "C:/Users/sophi/Downloads/opencv/sources/data/haarcascades/haarcascade_frontalface_alt2.xml"; //path to xml file
+        String xmlPath = "src/main/resources/org/example/focustimercv/haarcascade_frontalface_alt2.xml"; //path to xml file
         cascadeFaceDetector.load(xmlPath);
+
 
         if (cascadeFaceDetector.empty()) { //error checking of face detector loading properly
             System.out.println("Error: Could not load face cascade!");
@@ -66,29 +77,37 @@ public class SceneController {
             System.out.println("Face detector loaded successfully!");
         }
 
+
         camera = new VideoCapture(0);
+
 
         if (!camera.isOpened()) {
             System.out.println("Error: Camera not found!");
             return;
         }
 
+
         System.out.println("Camera opened!");
         running = true;
+
 
         Thread captureThread = new Thread(() -> {
             Mat frame = new Mat();
 
+
             while (running && camera.isOpened()) {
                 camera.read(frame);
+
 
                 if (!frame.empty()) {
                     enhanceFrame(frame); //enhance colors if you have a poor quality webcam like me
                     Image image = matToImage(frame);
 
+
                     // Update UI
                     Platform.runLater(() -> webcamView.setImage(image));
                 }
+
 
 //                try {
 //                    Thread.sleep(30); // ~33 FPS
@@ -97,12 +116,15 @@ public class SceneController {
 //                }
             }
 
+
             frame.release();
         });
+
 
         captureThread.setDaemon(true);
         captureThread.start();
     }
+
 
     public void stopCamera() {
         System.out.println("Stopping camera...");
@@ -113,19 +135,23 @@ public class SceneController {
         }
     }
 
+
     //increase saturation & flips if inverted by default
     private void enhanceFrame(Mat frame) {
         Mat hsv = new Mat();
         Core.flip(frame, frame, 1); // Flips horizontally
         Imgproc.cvtColor(frame, hsv, Imgproc.COLOR_BGR2HSV);
 
+
         // Split into H, S, V channels
         Core.add(hsv, new org.opencv.core.Scalar(0, 15, 30), hsv); // Increase saturation and brightness
+
 
         // Convert back to BGR
         Imgproc.cvtColor(hsv, frame, Imgproc.COLOR_HSV2BGR);
         hsv.release();
     }
+
 
     // Convert OpenCV Mat to JavaFX Image
     private Image matToImage(Mat mat) {
@@ -133,11 +159,14 @@ public class SceneController {
         int height = mat.rows();
         int channels = mat.channels();
 
+
         byte[] sourcePixels = new byte[width * height * channels];
         mat.get(0, 0, sourcePixels);
 
+
         WritableImage image = new WritableImage(width, height);
         PixelWriter pixelWriter = image.getPixelWriter();
+
 
         if (channels == 1) {
             // Grayscale
@@ -162,6 +191,10 @@ public class SceneController {
             }
         }
 
+
         return image;
     }
 }
+
+
+
