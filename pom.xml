@@ -15,6 +15,13 @@
     </properties>
 
     <dependencies>
+            <!-- OpenCV -->
+            <dependency>
+                <groupId>org.openpnp</groupId>
+                <artifactId>opencv</artifactId>
+                <version>4.9.0-0</version> <!-- Check for latest version -->
+            </dependency>
+
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
