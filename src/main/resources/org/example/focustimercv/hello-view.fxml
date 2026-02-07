@@ -10,8 +10,8 @@
     <children>
         <HBox layoutX="10.0" layoutY="10.0" prefHeight="18.0" prefWidth="578.0">
             <children>
-                <CheckBox fx:id="haarClassifier" mnemonicParsing="false" text="haarClassifier" />
-                <CheckBox fx:id="lbpClassifier" mnemonicParsing="false" text="lbpClassifier" />
+                <CheckBox fx:id="toggleFaceDetect" mnemonicParsing="false" text="Detect Face" />
+                <CheckBox fx:id="toggleGreyscale" mnemonicParsing="false" text="B&amp;W camera" />
             </children>
         </HBox>
         <VBox layoutX="14.0" layoutY="47.0" prefHeight="200.0" prefWidth="100.0">

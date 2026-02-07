@@ -16,9 +16,7 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfRect;
+import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.videoio.VideoCapture;
@@ -35,6 +33,8 @@ public class SceneController {
 
     private CascadeClassifier cascadeFaceDetector; //classifier object from the opencv folder
     private MatOfRect matOfRect;
+    String haarPath = "src/main/resources/org/example/focustimercv/haarcascade_frontalface_alt.xml"; //path to xml file
+    String lbpPath = "src/main/resources/org/example/focustimercv/lbpcascade_frontalface.xml";
 
 
     @FXML
@@ -67,9 +67,11 @@ public class SceneController {
 
 
         cascadeFaceDetector = new CascadeClassifier();
-        String xmlPath = "src/main/resources/org/example/focustimercv/haarcascade_frontalface_alt2.xml"; //path to xml file
-        cascadeFaceDetector.load(xmlPath);
+        // For HAAR (more accurate, slower)
+        cascadeFaceDetector.load(haarPath);
 
+        // For LBP (faster, less accurate)
+        //faceDetector.load(lbpPath);
 
         if (cascadeFaceDetector.empty()) { //error checking of face detector loading properly
             System.out.println("Error: Could not load face cascade!");
@@ -100,6 +102,7 @@ public class SceneController {
 
 
                 if (!frame.empty()) {
+                    detectAndDisplay(frame);
                     enhanceFrame(frame); //enhance colors if you have a poor quality webcam like me
                     Image image = matToImage(frame);
 
@@ -108,12 +111,11 @@ public class SceneController {
                     Platform.runLater(() -> webcamView.setImage(image));
                 }
 
-
-//                try {
-//                    Thread.sleep(30); // ~33 FPS
-//                } catch (InterruptedException e) {
-//                    break;
-//                }
+                try {
+                    Thread.sleep(30); // ~33 FPS
+                } catch (InterruptedException e) {
+                    break;
+                }
             }
 
 
@@ -135,6 +137,41 @@ public class SceneController {
         }
     }
 
+    private void detectAndDisplay(Mat frame) {
+        MatOfRect faces = new MatOfRect();
+        Mat grayFrame = new Mat();
+
+        //improving detection accuracy according to how cascade works
+        // Convert to grayscale
+        Imgproc.cvtColor(frame, grayFrame, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.equalizeHist(grayFrame, grayFrame);
+
+        // Detect faces!!!
+        // Parameters: image, objects, scaleFactor, minNeighbors, flags, minSize, maxSize
+        cascadeFaceDetector.detectMultiScale(
+                grayFrame,           // Input image
+                faces,               // Output rectangles
+                1.1,                 // Scale factor (1.1 = reduce by 10% each time)
+                3,                   // Min neighbors (higher = fewer false positives)
+                0,
+                new Size(30, 30),    // Min face size
+                new Size()           // Max face size (empty = no limit)
+        );
+
+        // Draw rectangles around detected faces
+        Rect[] facesArray = faces.toArray();
+        for (Rect rect : facesArray) {
+            Imgproc.rectangle(
+                    frame,
+                    new Point(rect.x, rect.y),
+                    new Point(rect.x + rect.width, rect.y + rect.height),
+                    new Scalar(0, 255, 0),  // Green color (BGR format)
+                    3                        // Thickness
+            );
+        }
+
+        grayFrame.release();
+    }
 
     //increase saturation & flips if inverted by default
     private void enhanceFrame(Mat frame) {
