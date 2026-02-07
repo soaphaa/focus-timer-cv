@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.example.focustimercv.SceneController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
-
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
-</VBox>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.focustimercv.SceneController">
+    <children>
+        <HBox layoutX="10.0" layoutY="10.0" prefHeight="18.0" prefWidth="578.0">
+            <children>
+                <CheckBox fx:id="haarClassifier" mnemonicParsing="false" text="haarClassifier" />
+                <CheckBox fx:id="lbpClassifier" mnemonicParsing="false" text="lbpClassifier" />
+            </children>
+        </HBox>
+        <VBox layoutX="14.0" layoutY="47.0" prefHeight="200.0" prefWidth="100.0">
+            <children>
+                <Button fx:id="onButtonClick" alignment="TOP_CENTER" contentDisplay="TOP" defaultButton="true" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#onButtonClick" prefHeight="27.0" prefWidth="179.0" text="Play video" textAlignment="CENTER" textFill="#4a82cc" textOverrun="CENTER_WORD_ELLIPSIS">
+                    <font>
+                        <Font name="Microsoft Himalaya" size="27.0" />
+                    </font>
+                    <opaqueInsets>
+                        <Insets />
+                    </opaqueInsets>
+                    <padding>
+                        <Insets left="5.0" right="5.0" />
+                    </padding>
+                </Button>
+                <Label fx:id="welcomeText" alignment="CENTER" onMouseClicked="#onButtonClick" prefHeight="18.0" prefWidth="408.0" />
+                <Button fx:id="startCamera" mnemonicParsing="false" onAction="#startCamera" text="Start Camera" />
+            </children>
+        </VBox>
+        <ImageView fx:id="webcamView" fitHeight="216.0" fitWidth="377.0" layoutX="191.0" layoutY="54.0" pickOnBounds="true" preserveRatio="true" />
+        <Separator layoutX="10.0" layoutY="28.0" prefHeight="26.0" prefWidth="578.0" />
+    </children>
+</AnchorPane>
