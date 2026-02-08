@@ -8,12 +8,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
+import javafx.scene.control.*;
+import javafx.scene.image.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.opencv.core.*;
@@ -40,9 +36,12 @@ public class SceneController {
     @FXML
     private ImageView webcamView;  // This should match the fx:id in your hello-view.fxml
 
+    @FXML
+    private RadioButton toggleFaceDetect;
 
     private VideoCapture camera;
     private volatile boolean running = false;
+    private volatile boolean faceDetectionEnabled = false;  // For the toggle button
 
 
     @FXML
@@ -52,6 +51,21 @@ public class SceneController {
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
+    }
+
+    @FXML
+    public void toggleFaceDetection(ActionEvent event){
+        faceDetectionEnabled = toggleFaceDetect.isSelected();
+
+        if (faceDetectionEnabled) {
+            System.out.println("Face detection ENABLED");
+        } else {
+            System.out.println("Face detection DISABLED");
+        }
+    }
+
+    public void toggleGreyscale(ActionEvent event){
+        // Implement similarly for greyscale
     }
 
 
@@ -102,7 +116,10 @@ public class SceneController {
 
 
                 if (!frame.empty()) {
-                    detectAndDisplay(frame);
+                    // Only detect faces if toggle is enabled
+                    if(faceDetectionEnabled){
+                        detectAndDisplay(frame);
+                    }
                     enhanceFrame(frame); //enhance colors if you have a poor quality webcam like me
                     Image image = matToImage(frame);
 
@@ -181,7 +198,7 @@ public class SceneController {
 
 
         // Split into H, S, V channels
-        Core.add(hsv, new org.opencv.core.Scalar(0, 15, 30), hsv); // Increase saturation and brightness
+        Core.add(hsv, new org.opencv.core.Scalar(0, 0, 30), hsv); // Increase saturation and brightness
 
 
         // Convert back to BGR

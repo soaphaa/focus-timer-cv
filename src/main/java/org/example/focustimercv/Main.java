@@ -2,8 +2,10 @@ package org.example.focustimercv;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.opencv.core.Core;
 
@@ -13,8 +15,14 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("hello-view.fxml"));
-        Scene scene = new Scene(root);
-        stage.setTitle("Hello!");
+
+        // Wrap the content in a StackPane for centering
+        StackPane centeredRoot = new StackPane(root);
+        centeredRoot.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(centeredRoot);
+
+        stage.setTitle("Focus Timer CV");
         stage.setScene(scene);
         stage.show();
     }
