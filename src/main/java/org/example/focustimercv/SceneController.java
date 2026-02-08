@@ -10,20 +10,25 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.opencv.core.*;
+import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.videoio.VideoCapture;
+import javafx.scene.shape.Rectangle;
 
 
+import java.awt.*;
 import java.io.IOException;
 
 
 public class SceneController {
     private Stage stage;
     private Scene scene;
+    @FXML
     private Parent root;
 
 
@@ -73,12 +78,16 @@ public class SceneController {
     public void startCamera(ActionEvent event){
         System.out.println("Start camera button clicked!");
 
-
         if (running) {
             System.out.println("Camera already running");
             return;
         }
 
+        // rounding the corners of webcam --> GUI design
+        Rectangle clip = new Rectangle(381, 463);
+        clip.setArcWidth(20);
+        clip.setArcHeight(20);
+        webcamView.setClip(clip);
 
         cascadeFaceDetector = new CascadeClassifier();
         // For HAAR (more accurate, slower)
