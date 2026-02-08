@@ -77,21 +77,22 @@ public class SceneController {
     @FXML
     public void onButtonClick(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("video-window.fxml"));
-        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        StackPane centeredRoot = new StackPane(root);
-        centeredRoot.setAlignment(Pos.CENTER);
+
+        // Create a new stage for the new window
+        Stage newStage = new Stage();
+        newStage.setTitle("Skeleton Shield Meme");
+
+        // Set the scene on a new stage
         scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
+        newStage.setScene(scene);
+        newStage.show();
     }
 
     @FXML
     public void onReturnButtonClick(ActionEvent event) throws IOException {
-        root = FXMLLoader.load(getClass().getResource("hello-view.fxml"));
-        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
+        Stage currentStage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        // Close this window
+        currentStage.close();
     }
 
     @FXML
@@ -103,18 +104,38 @@ public class SceneController {
     }
 
     //set media on the scene
-    public void selectMedia(ActionEvent e){
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select video");
-        File selectFile = fileChooser.showOpenDialog(null);
+    @FXML
+    public void initialize(){
+        try {
+            String videoPath = getClass().getResource("/org/example/focustimercv/videos/skeleton_shield_meme.mp4").toExternalForm();
+            System.out.println("Video path: " + videoPath);
 
-        //load media given
-        if(selectFile != null){
-            String url = selectFile.toURI().toString();
+            media = new Media(videoPath);
+            System.out.println("Media created successfully");
 
-            media = new Media(url);
             mediaPlayer = new MediaPlayer(media);
-            mediaPlayer.setAutoPlay(true);
+            System.out.println("MediaPlayer created successfully");
+
+            // Listen for errors
+            mediaPlayer.setOnError(() -> {
+                System.out.println("MediaPlayer Error: " + mediaPlayer.getError());
+                mediaPlayer.getError().printStackTrace();
+            });
+
+            // Listen for ready state
+            mediaPlayer.setOnReady(() -> {
+                System.out.println("MediaPlayer is ready!");
+            });
+
+            mediaView.setMediaPlayer(mediaPlayer);
+            System.out.println("MediaPlayer set to MediaView");
+
+            mediaPlayer.play();
+            System.out.println("Play command sent");
+
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
