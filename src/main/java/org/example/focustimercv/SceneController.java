@@ -226,7 +226,6 @@ public class SceneController {
         byte[] sourcePixels = new byte[width * height * channels];
         mat.get(0, 0, sourcePixels);
 
-
         WritableImage image = new WritableImage(width, height);
         PixelWriter pixelWriter = image.getPixelWriter();
 
