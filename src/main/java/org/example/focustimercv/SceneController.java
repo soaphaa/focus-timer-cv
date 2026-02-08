@@ -5,13 +5,18 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.image.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
+import javafx.scene.media.*;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.opencv.core.*;
 import org.opencv.core.Point;
@@ -22,6 +27,7 @@ import javafx.scene.shape.Rectangle;
 
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 
 
@@ -33,16 +39,35 @@ public class SceneController {
 
 
     private CascadeClassifier cascadeFaceDetector; //classifier object from the opencv folder
+    private CascadeClassifier haarEye;
+    private CascadeClassifier haarEyeGlasses;
+    private CascadeClassifier haarEyePair;
     private MatOfRect matOfRect;
     String haarPath = "src/main/resources/org/example/focustimercv/haarcascade_frontalface_alt.xml"; //path to xml file
     String lbpPath = "src/main/resources/org/example/focustimercv/lbpcascade_frontalface.xml";
 
+    String haarEyePath = "src/main/resources/org/example/focustimercv/haarcascade_eye.xml";
+    String haarEyeglassesPath = "src/main/resources/org/example/focustimercv/haarcascade_eye_tree_eyeglasses.xml";
+    String haarEyePairPath = "src/main/resources/org/example/focustimercv/haarcascade_mcs_eyepair_big.xml";
 
     @FXML
     private ImageView webcamView;  // This should match the fx:id in your hello-view.fxml
 
     @FXML
     private RadioButton toggleFaceDetect;
+
+    //-------- Media Video scene variables --------------
+    @FXML
+    private MediaView mediaView;
+    private Media media; //media class
+    private MediaPlayer mediaPlayer;
+
+    @FXML
+    private Button playBtn;
+
+    @FXML
+    private Button pauseBtn;
+    //-------- --------------------------- --------------
 
     private VideoCapture camera;
     private volatile boolean running = false;
@@ -53,9 +78,44 @@ public class SceneController {
     public void onButtonClick(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("video-window.fxml"));
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        StackPane centeredRoot = new StackPane(root);
+        centeredRoot.setAlignment(Pos.CENTER);
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
+    }
+
+    @FXML
+    public void onReturnButtonClick(ActionEvent event) throws IOException {
+        root = FXMLLoader.load(getClass().getResource("hello-view.fxml"));
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    @FXML
+    public void onPlayBtn (ActionEvent event){
+    }
+
+    @FXML
+    public void onPauseBtn (ActionEvent event){
+    }
+
+    //set media on the scene
+    public void selectMedia(ActionEvent e){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select video");
+        File selectFile = fileChooser.showOpenDialog(null);
+
+        //load media given
+        if(selectFile != null){
+            String url = selectFile.toURI().toString();
+
+            media = new Media(url);
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.setAutoPlay(true);
+        }
     }
 
     @FXML
@@ -89,10 +149,13 @@ public class SceneController {
         clip.setArcHeight(20);
         webcamView.setClip(clip);
 
+        // ------------- CASCADE DETECTORS INITIALIZING -------------
         cascadeFaceDetector = new CascadeClassifier();
+        haarEye = new CascadeClassifier(haarEyePath);
+        haarEyeGlasses = new CascadeClassifier(haarEyeglassesPath);
+        haarEyePair = new CascadeClassifier(haarEyePairPath);
         // For HAAR (more accurate, slower)
         cascadeFaceDetector.load(haarPath);
-
         // For LBP (faster, less accurate)
         //faceDetector.load(lbpPath);
 
@@ -102,28 +165,20 @@ public class SceneController {
             System.out.println("Face detector loaded successfully!");
         }
 
-
         camera = new VideoCapture(0);
-
-
         if (!camera.isOpened()) {
             System.out.println("Error: Camera not found!");
             return;
         }
 
-
         System.out.println("Camera opened!");
         running = true;
-
 
         Thread captureThread = new Thread(() -> {
             Mat frame = new Mat();
 
-
             while (running && camera.isOpened()) {
                 camera.read(frame);
-
-
                 if (!frame.empty()) {
                     // Only detect faces if toggle is enabled
                     if(faceDetectionEnabled){
@@ -131,8 +186,6 @@ public class SceneController {
                     }
                     enhanceFrame(frame); //enhance colors if you have a poor quality webcam like me
                     Image image = matToImage(frame);
-
-
                     // Update UI
                     Platform.runLater(() -> webcamView.setImage(image));
                 }
@@ -144,15 +197,11 @@ public class SceneController {
                 }
             }
 
-
             frame.release();
         });
-
-
         captureThread.setDaemon(true);
         captureThread.start();
     }
-
 
     public void stopCamera() {
         System.out.println("Stopping camera...");
@@ -165,6 +214,7 @@ public class SceneController {
 
     private void detectAndDisplay(Mat frame) {
         MatOfRect faces = new MatOfRect();
+        MatOfRect eyePairs = new MatOfRect();
         Mat grayFrame = new Mat();
 
         //improving detection accuracy according to how cascade works
@@ -184,6 +234,10 @@ public class SceneController {
                 new Size()           // Max face size (empty = no limit)
         );
 
+
+        boolean eyePairDetected = eyePairs.toArray().length > 0;
+
+
         // Draw rectangles around detected faces
         Rect[] facesArray = faces.toArray();
         for (Rect rect : facesArray) {
@@ -194,6 +248,7 @@ public class SceneController {
                     new Scalar(0, 255, 0),  // Green color (BGR format)
                     3                        // Thickness
             );
+
         }
 
         grayFrame.release();
