@@ -53,6 +53,11 @@ public class SceneController {
     @FXML
     private ImageView webcamView;  // This should match the fx:id in your hello-view.fxml
 
+    private Image tomatoImg;
+    @FXML
+    private ImageView tomato;
+
+
     @FXML
     private RadioButton toggleFaceDetect;
 
@@ -103,9 +108,15 @@ public class SceneController {
     public void onPauseBtn (ActionEvent event){
     }
 
+    private void loadImage() {
+        tomatoImg = new Image(getClass().getResourceAsStream("/org/example/focustimercv/images/tomato.png"));
+        tomato.setImage(tomatoImg);
+    }
+
     //set media on the scene
     @FXML
     public void initialize(){
+        loadImage(); //load any images on scene 1
         try {
             String videoPath = getClass().getResource("/org/example/focustimercv/videos/skeleton_shield_meme.mp4").toExternalForm();
             System.out.println("Video path: " + videoPath); //ensure the url exists
@@ -260,8 +271,6 @@ public class SceneController {
                 new Size()           // Max face size (no limit)
         );
 
-        boolean eyePairDetected = eyePairs.toArray().length > 0;
-
         // Draw rectangles around detected faces
         Rect[] facesArray = faces.toArray();
         for (Rect rect : facesArray) {
@@ -288,19 +297,24 @@ public class SceneController {
             // faceROI means --> Extract stuff from just the face region from the grayscale frame
             Mat faceROI = grayFrame.submat(rect);
 
-            // Detect eyes without glasses
-            MatOfRect eyes = new MatOfRect();
-            haarEye.detectMultiScale(
+            // Detect eye pair
+            haarEyePair.detectMultiScale(
                     faceROI,             // Search only in the face region
-                    eyes,
+                    eyePairs,
                     1.1,                 // Scale factor
-                    2,
+                    1,
                     0,
                     new Size(35, 20),    // Min eye size ( to avoid nostrils being detected as eyes...
                     new Size() //no max eye size
             );
 
-            Rect[] eyesArray = eyes.toArray();
+            //Are the eyes in frame/detected? (To determine focused or not)
+            boolean eyesDetected = eyePairs.toArray().length > 0;
+            if (eyesDetected) {
+                System.out.println("Eyes detected!");
+            }
+
+            Rect[] eyesArray = eyePairs.toArray();
             for (Rect eye : eyesArray) {
                 // Draw eye rectangle
                 Imgproc.rectangle(
@@ -314,7 +328,7 @@ public class SceneController {
                 // "EYE " label
                 Imgproc.putText(
                         frame,
-                        "eye",
+                        "eyes",
                         new Point(rect.x + eye.x, rect.y + eye.y - 10),
                         Imgproc.FONT_HERSHEY_SIMPLEX,
                         0.5,
