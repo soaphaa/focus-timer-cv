@@ -108,13 +108,9 @@ public class SceneController {
     public void initialize(){
         try {
             String videoPath = getClass().getResource("/org/example/focustimercv/videos/skeleton_shield_meme.mp4").toExternalForm();
-            System.out.println("Video path: " + videoPath);
-
+            System.out.println("Video path: " + videoPath); //ensure the url exists
             media = new Media(videoPath);
-            System.out.println("Media created successfully");
-
             mediaPlayer = new MediaPlayer(media);
-            System.out.println("MediaPlayer created successfully");
 
             // Listen for errors
             mediaPlayer.setOnError(() -> {
@@ -124,14 +120,11 @@ public class SceneController {
 
             // Listen for ready state
             mediaPlayer.setOnReady(() -> {
-                System.out.println("MediaPlayer is ready!");
             });
 
             mediaView.setMediaPlayer(mediaPlayer);
-            System.out.println("MediaPlayer set to MediaView");
 
             mediaPlayer.play();
-            System.out.println("Play command sent");
 
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
@@ -164,12 +157,6 @@ public class SceneController {
             return;
         }
 
-        // rounding the corners of webcam --> GUI design
-        Rectangle clip = new Rectangle(381, 463);
-        clip.setArcWidth(20);
-        clip.setArcHeight(20);
-        webcamView.setClip(clip);
-
         // ------------- CASCADE DETECTORS INITIALIZING -------------
         cascadeFaceDetector = new CascadeClassifier();
         haarEye = new CascadeClassifier(haarEyePath);
@@ -180,10 +167,28 @@ public class SceneController {
         // For LBP (faster, less accurate)
         //faceDetector.load(lbpPath);
 
-        if (cascadeFaceDetector.empty()) { //error checking of face detector loading properly
+        //Loading and error checking each detector
+        if (cascadeFaceDetector.empty()) {
             System.out.println("Error: Could not load face cascade!");
         } else {
             System.out.println("Face detector loaded successfully!");
+        }
+        if (haarEye.empty()) {
+            System.out.println("Error: Eye detector not loaded!");
+        } else {
+            System.out.println("Eye detector loaded!");
+        }
+
+        if (haarEyeGlasses.empty()) {
+            System.out.println("Error: Eyeglasses detector not loaded!");
+        } else {
+            System.out.println("Eyeglasses detector loaded!");
+        }
+
+        if (haarEyePair.empty()) {
+            System.out.println("Error: Eye pair detector not loaded!");
+        } else {
+            System.out.println("Eye pair detector loaded!");
         }
 
         camera = new VideoCapture(0);
@@ -238,26 +243,24 @@ public class SceneController {
         MatOfRect eyePairs = new MatOfRect();
         Mat grayFrame = new Mat();
 
-        //improving detection accuracy according to how cascade works
-        // Convert to grayscale
+        //-----------Detection improvements for OpenCV---------
+            // Converting to grayscale
         Imgproc.cvtColor(frame, grayFrame, Imgproc.COLOR_BGR2GRAY);
         Imgproc.equalizeHist(grayFrame, grayFrame);
 
         // Detect faces!!!
-        // Parameters: image, objects, scaleFactor, minNeighbors, flags, minSize, maxSize
+        //how this works:
         cascadeFaceDetector.detectMultiScale(
                 grayFrame,           // Input image
                 faces,               // Output rectangles
                 1.1,                 // Scale factor (1.1 = reduce by 10% each time)
                 3,                   // Min neighbors (higher = fewer false positives)
                 0,
-                new Size(30, 30),    // Min face size
-                new Size()           // Max face size (empty = no limit)
+                new Size(50, 50),    // Min face size
+                new Size()           // Max face size (no limit)
         );
 
-
         boolean eyePairDetected = eyePairs.toArray().length > 0;
-
 
         // Draw rectangles around detected faces
         Rect[] facesArray = faces.toArray();
@@ -266,11 +269,63 @@ public class SceneController {
                     frame,
                     new Point(rect.x, rect.y),
                     new Point(rect.x + rect.width, rect.y + rect.height),
-                    new Scalar(0, 255, 0),  // Green color (BGR format)
-                    3                        // Thickness
+                    new Scalar(41 ,42, 191),  // Red color (BGR format)
+                    2                        // Thickness
             );
 
+            // ---------- DETECTING EYES WITHIN THE FACE ----------
+            // Add "FACE" label above rectangle
+            Imgproc.putText(
+                    frame,
+                    "FACE",                              // Text to display
+                    new Point(rect.x, rect.y - 10),      // Position (10 pixels above rectangle)
+                    Imgproc.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    new Scalar(41, 42, 191),
+                    2                                     // Thickness
+            );
+
+            // faceROI means --> Extract stuff from just the face region from the grayscale frame
+            Mat faceROI = grayFrame.submat(rect);
+
+            // Detect eyes without glasses
+            MatOfRect eyes = new MatOfRect();
+            haarEye.detectMultiScale(
+                    faceROI,             // Search only in the face region
+                    eyes,
+                    1.1,                 // Scale factor
+                    2,
+                    0,
+                    new Size(35, 20),    // Min eye size ( to avoid nostrils being detected as eyes...
+                    new Size() //no max eye size
+            );
+
+            Rect[] eyesArray = eyes.toArray();
+            for (Rect eye : eyesArray) {
+                // Draw eye rectangle
+                Imgproc.rectangle(
+                        frame,
+                        new Point(rect.x + eye.x, rect.y + eye.y),
+                        new Point(rect.x + eye.x + eye.width, rect.y + eye.y + eye.height),
+                        new Scalar(0, 255, 255),  //colour for eyes rectangles
+                        2
+                );
+
+                // "EYE " label
+                Imgproc.putText(
+                        frame,
+                        "eye",
+                        new Point(rect.x + eye.x, rect.y + eye.y - 10),
+                        Imgproc.FONT_HERSHEY_SIMPLEX,
+                        0.5,
+                        new Scalar(0, 255, 255),
+                        1
+                );
+            }
+
+
         }
+        
 
         grayFrame.release();
     }
@@ -281,10 +336,8 @@ public class SceneController {
         Core.flip(frame, frame, 1); // Flips horizontally
         Imgproc.cvtColor(frame, hsv, Imgproc.COLOR_BGR2HSV);
 
-
         // Split into H, S, V channels
-        Core.add(hsv, new org.opencv.core.Scalar(0, 0, 30), hsv); // Increase saturation and brightness
-
+        Core.add(hsv, new org.opencv.core.Scalar(0, 15, 30), hsv); // Increase saturation and brightness
 
         // Convert back to BGR
         Imgproc.cvtColor(hsv, frame, Imgproc.COLOR_HSV2BGR);
@@ -292,19 +345,17 @@ public class SceneController {
     }
 
 
-    // Convert OpenCV Mat to JavaFX Image
-    private Image matToImage(Mat mat) {
+    // Convert OpenCV Mat to JavaFX Image to display on GUI
+    private Image matToImage(Mat mat) { //mat is
         int width = mat.cols();
         int height = mat.rows();
         int channels = mat.channels();
-
 
         byte[] sourcePixels = new byte[width * height * channels];
         mat.get(0, 0, sourcePixels);
 
         WritableImage image = new WritableImage(width, height);
         PixelWriter pixelWriter = image.getPixelWriter();
-
 
         if (channels == 1) {
             // Grayscale
@@ -328,7 +379,6 @@ public class SceneController {
                 }
             }
         }
-
 
         return image;
     }
