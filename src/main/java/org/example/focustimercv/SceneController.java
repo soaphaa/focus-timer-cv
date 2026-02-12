@@ -37,7 +37,6 @@ public class SceneController {
     @FXML
     private Parent root;
 
-
     private CascadeClassifier cascadeFaceDetector; //classifier object from the opencv folder
     private CascadeClassifier haarEye;
     private CascadeClassifier haarEyeGlasses;
@@ -57,15 +56,13 @@ public class SceneController {
     @FXML
     private ImageView tomato;
 
-
     @FXML
     private RadioButton toggleFaceDetect;
 
     //-------- Media Video scene variables --------------
     @FXML
     private MediaView mediaView;
-    private Media media; //media class
-    private MediaPlayer mediaPlayer;
+    private MediaPlayerController mediaPlayerController;
 
     @FXML
     private Button playBtn;
@@ -73,11 +70,15 @@ public class SceneController {
     @FXML
     private Button pauseBtn;
     //-------- --------------------------- --------------
-
     private VideoCapture camera;
     private volatile boolean running = false;
     private volatile boolean faceDetectionEnabled = false;  // For the toggle button
 
+    // Timer variables for eye detection
+    private long lastEyeDetectedTime = 0; //
+    private static final long EYE_DETECTION_THRESHOLD = 5000; // 3 seconds in milliseconds
+    private boolean eyeWarningActive = false;
+    boolean eyesDetectedThisFrame = false;
 
     @FXML
     public void onButtonClick(ActionEvent event) throws IOException {
@@ -98,14 +99,17 @@ public class SceneController {
         Stage currentStage = (Stage)((Node)event.getSource()).getScene().getWindow();
         // Close this window
         currentStage.close();
+        mediaPlayerController.pause();
     }
 
     @FXML
     public void onPlayBtn (ActionEvent event){
+        mediaPlayerController.play();
     }
 
     @FXML
     public void onPauseBtn (ActionEvent event){
+        mediaPlayerController.pause();
     }
 
     private void loadImage() {
@@ -113,34 +117,17 @@ public class SceneController {
         tomato.setImage(tomatoImg);
     }
 
+    @FXML
+    public void loadSceneDetails(){
+        loadImage();
+    }
+
     //set media on the scene
     @FXML
     public void initialize(){
-        loadImage(); //load any images on scene 1
-        try {
-            String videoPath = getClass().getResource("/org/example/focustimercv/videos/skeleton_shield_meme.mp4").toExternalForm();
-            System.out.println("Video path: " + videoPath); //ensure the url exists
-            media = new Media(videoPath);
-            mediaPlayer = new MediaPlayer(media);
-
-            // Listen for errors
-            mediaPlayer.setOnError(() -> {
-                System.out.println("MediaPlayer Error: " + mediaPlayer.getError());
-                mediaPlayer.getError().printStackTrace();
-            });
-
-            // Listen for ready state
-            mediaPlayer.setOnReady(() -> {
-            });
-
-            mediaView.setMediaPlayer(mediaPlayer);
-
-            mediaPlayer.play();
-
-        } catch (Exception e) {
-            System.out.println("Exception: " + e.getMessage());
-            e.printStackTrace();
-        }
+        mediaPlayerController = new MediaPlayerController(mediaView);
+        String videoPath = getClass().getResource("/org/example/focustimercv/videos/skeleton_shield_meme.mp4").toExternalForm();
+        mediaPlayerController.loadAndPlay(videoPath);
     }
 
     @FXML
@@ -309,12 +296,22 @@ public class SceneController {
             );
 
             //Are the eyes in frame/detected? (To determine focused or not)
-            boolean eyesDetected = eyePairs.toArray().length > 0;
-            if (eyesDetected) {
+            if (eyesDetectedThisFrame) {
                 System.out.println("Eyes detected!");
             }
+            else{
+                System.out.println("Eyes NOT detected. Lock in");
+            }
+
+
 
             Rect[] eyesArray = eyePairs.toArray();
+
+            // ========== CHECK IF EYES WERE DETECTED ==========
+            if (eyesArray.length > 0) {
+                eyesDetectedThisFrame = true; //eyes are found in the frame
+            }
+
             for (Rect eye : eyesArray) {
                 // Draw eye rectangle
                 Imgproc.rectangle(
@@ -343,6 +340,7 @@ public class SceneController {
 
         grayFrame.release();
     }
+
 
     //increase saturation & flips if inverted by default
     private void enhanceFrame(Mat frame) {

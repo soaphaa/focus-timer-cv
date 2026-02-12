@@ -14,8 +14,8 @@
          </font></Label>
       <HBox alignment="CENTER" layoutX="8.0" layoutY="454.0" prefHeight="31.0" prefWidth="482.0" spacing="10.0">
          <children>
-            <Button fx:id="playBtn" mnemonicParsing="false" text="Play" />
-            <Button fx:id="pauseBtn" mnemonicParsing="false" text="Pause" />
+            <Button fx:id="playBtn" mnemonicParsing="false" onAction="#onPlayBtn" text="Play" />
+            <Button fx:id="pauseBtn" mnemonicParsing="false" onAction="#onPauseBtn" text="Pause" />
             <Button fx:id="returnBtn" layoutX="252.0" layoutY="12.0" mnemonicParsing="false" onAction="#onReturnButtonClick" text="RETURN TO TIMER" />
          </children>
       </HBox>
