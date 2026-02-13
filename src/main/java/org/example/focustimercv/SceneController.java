@@ -63,6 +63,7 @@ public class SceneController {
     @FXML
     private MediaView mediaView;
     private MediaPlayerController mediaPlayerController;
+    String videoPath = getClass().getResource("/org/example/focustimercv/videos/skeleton_shield_meme.mp4").toExternalForm();
 
     @FXML
     private Button playBtn;
@@ -76,7 +77,7 @@ public class SceneController {
 
     // Timer variables for eye detection
     private long lastEyeDetectedTime = 0; //
-    private static final long EYE_DETECTION_THRESHOLD = 5000; // 3 seconds in milliseconds
+    private static final long EYE_DETECTION_THRESHOLD = 2000; // 2 seconds (in milliseconds)
     private boolean eyeWarningActive = false;
     boolean eyesDetectedThisFrame = false;
 
@@ -117,16 +118,14 @@ public class SceneController {
         tomato.setImage(tomatoImg);
     }
 
-    @FXML
-    public void loadSceneDetails(){
-        loadImage();
-    }
-
     //set media on the scene
     @FXML
     public void initialize(){
+        //to load the tomato image in to the scene 1
+        if (tomato != null) { //when loading into scene 2, tomato isnt there so this will only run on scene 1 when tomato isnt null
+            loadImage();
+        }
         mediaPlayerController = new MediaPlayerController(mediaView);
-        String videoPath = getClass().getResource("/org/example/focustimercv/videos/skeleton_shield_meme.mp4").toExternalForm();
         mediaPlayerController.loadAndPlay(videoPath);
     }
 
@@ -258,6 +257,9 @@ public class SceneController {
                 new Size()           // Max face size (no limit)
         );
 
+        // Track if we detect ANY eyes in this frame
+        boolean eyesDetectedThisFrame = false;
+
         // Draw rectangles around detected faces
         Rect[] facesArray = faces.toArray();
         for (Rect rect : facesArray) {
@@ -268,6 +270,7 @@ public class SceneController {
                     new Scalar(41 ,42, 191),  // Red color (BGR format)
                     2                        // Thickness
             );
+            
 
             // ---------- DETECTING EYES WITHIN THE FACE ----------
             // Add "FACE" label above rectangle
@@ -295,15 +298,13 @@ public class SceneController {
                     new Size() //no max eye size
             );
 
-            //Are the eyes in frame/detected? (To determine focused or not)
-            if (eyesDetectedThisFrame) {
-                System.out.println("Eyes detected!");
-            }
-            else{
-                System.out.println("Eyes NOT detected. Lock in");
-            }
-
-
+//            //Temporary detector indicators
+//            if (eyesDetectedThisFrame) {
+//                System.out.println("Eyes detected!");
+//            }
+//            else{
+//                System.out.println("Eyes NOT detected. Lock in");
+//            }
 
             Rect[] eyesArray = eyePairs.toArray();
 
@@ -311,7 +312,6 @@ public class SceneController {
             if (eyesArray.length > 0) {
                 eyesDetectedThisFrame = true; //eyes are found in the frame
             }
-
             for (Rect eye : eyesArray) {
                 // Draw eye rectangle
                 Imgproc.rectangle(
@@ -319,10 +319,10 @@ public class SceneController {
                         new Point(rect.x + eye.x, rect.y + eye.y),
                         new Point(rect.x + eye.x + eye.width, rect.y + eye.y + eye.height),
                         new Scalar(0, 255, 255),  //colour for eyes rectangles
-                        2
+                        1
                 );
 
-                // "EYE " label
+                // "EYES " label
                 Imgproc.putText(
                         frame,
                         "eyes",
@@ -333,10 +333,71 @@ public class SceneController {
                         1
                 );
             }
-
-
         }
-        
+        // ========== Check if eyes haven't been detected for a few seconds WITH A TIMER==========
+
+        if (eyesDetectedThisFrame) {
+            // Eyes are visible
+            lastEyeDetectedTime = System.currentTimeMillis();
+            eyeWarningActive = false;  // Reset timer
+            System.out.println("Eyes detected!");
+            if(mediaPlayerController !=null){
+                mediaPlayerController.pause();
+            }
+
+        } else {
+            // No eyes detected in this frame
+            long timeSinceLastEyes = System.currentTimeMillis() - lastEyeDetectedTime;
+            System.out.println("Eyes NOT detected!");
+
+            if (timeSinceLastEyes > EYE_DETECTION_THRESHOLD) {
+                // Eyes have been missing for more than 3 seconds --> only triggered once this is active
+                System.out.println("Eyes have not been detected for" + timeSinceLastEyes/1000 + "seconds");
+                if (!eyeWarningActive) {
+                    eyeWarningActive = true;
+                    Platform.runLater(() -> {
+                        try {
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("video-window.fxml"));
+                            Parent root = loader.load();
+
+                            Stage videoStage = new Stage();
+                            videoStage.setTitle("Not focused...");
+                            videoStage.setScene(new Scene(root));
+                            videoStage.show();
+
+                            // The video will auto-play
+
+                        } catch (IOException e) {
+                            System.out.println("Error opening video window: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    });
+                }
+
+                // Display warning on screen
+                Imgproc.putText(
+                        frame,
+                        "EYES NOT DETECTED!",
+                        new Point(10, 50),
+                        Imgproc.FONT_HERSHEY_SIMPLEX,
+                        1.0,
+                        new Scalar(0, 0, 255),  // Red
+                        3
+                );
+
+                // Optional: Show countdown
+                long secondsMissing = timeSinceLastEyes / 1000;
+                Imgproc.putText(
+                        frame,
+                        "Time: " + secondsMissing + "s",
+                        new Point(10, 90),
+                        Imgproc.FONT_HERSHEY_SIMPLEX,
+                        0.8,
+                        new Scalar(0, 0, 255),
+                        2
+                );
+            }
+        }
 
         grayFrame.release();
     }
