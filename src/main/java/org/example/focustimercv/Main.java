@@ -2,6 +2,7 @@ package org.example.focustimercv;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -18,12 +19,12 @@ public class Main extends Application {
 
         // Wrap the content in a StackPane for centering
         StackPane centeredRoot = new StackPane(root);
-        centeredRoot.setAlignment(Pos.CENTER);
-
         Scene scene = new Scene(centeredRoot);
 
         stage.setTitle("Focus Timer CV");
         stage.setScene(scene);
+        stage.setX(20);
+        stage.setY(20);
         stage.show();
     }
 

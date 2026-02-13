@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.effect.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
@@ -10,7 +9,6 @@
 
 <AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="610.0" prefWidth="980.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.focustimercv.SceneController">
     <children>
-        <Separator layoutX="10.0" layoutY="28.0" prefHeight="26.0" prefWidth="578.0" />
          <ImageView fx:id="webcamView" fitHeight="362.0" fitWidth="456.0" layoutX="35.0" layoutY="34.0" preserveRatio="true">
          <viewport>
             <Rectangle2D />
@@ -27,33 +25,18 @@
             <Font size="16.0" />
          </font>
       </RadioButton>
-        <HBox layoutX="10.0" layoutY="10.0" prefHeight="27.0" prefWidth="701.0">
+        <HBox layoutX="10.0" layoutY="10.0" prefHeight="27.0" prefWidth="962.0">
             <children>
                 <Label fx:id="welcomeText" alignment="CENTER" onMouseClicked="#onButtonClick" prefHeight="18.0" prefWidth="408.0" />
-                <Button fx:id="onButtonClick" alignment="TOP_CENTER" contentDisplay="TOP" defaultButton="true" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#onButtonClick" prefHeight="18.0" prefWidth="142.0" text="Play video" textAlignment="CENTER" textFill="WHITE" textOverrun="CENTER_WORD_ELLIPSIS">
-                    <font>
-                        <Font name="Impact" size="21.0" />
-                    </font>
-                    <opaqueInsets>
-                        <Insets />
-                    </opaqueInsets>
-                    <padding>
-                        <Insets left="5.0" right="5.0" />
-                    </padding>
-               <effect>
-                  <Blend />
-               </effect>
-                </Button>
             </children>
         </HBox>
       <ImageView fx:id="tomato" fitHeight="370.0" fitWidth="392.0" layoutX="541.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true" />
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#faead8" height="44.0" layoutX="682.0" layoutY="224.0" stroke="#faead8" strokeLineCap="ROUND" strokeType="OUTSIDE" strokeWidth="5.0" width="107.0" />
-      <Label layoutX="683.0" layoutY="215.0" prefHeight="54.0" prefWidth="107.0" text="00:00">
+      <Label alignment="CENTER" layoutX="627.0" layoutY="201.0" prefHeight="146.0" prefWidth="233.0" text="00:00" textFill="#faead8">
          <font>
-            <Font size="42.0" />
+            <Font name="Microsoft YaHei" size="76.0" />
          </font>
       </Label>
       <Button layoutX="711.0" layoutY="414.0" mnemonicParsing="false" text="Set Timer" />
-      <Button layoutX="718.0" layoutY="454.0" mnemonicParsing="false" text="Start timer" />
+      <Button layoutX="708.0" layoutY="454.0" mnemonicParsing="false" text="Start timer" />
     </children>
 </AnchorPane>

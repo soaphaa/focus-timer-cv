@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -170,17 +171,6 @@ public class SceneController {
         } else {
             System.out.println("Face detector loaded successfully!");
         }
-        if (haarEye.empty()) {
-            System.out.println("Error: Eye detector not loaded!");
-        } else {
-            System.out.println("Eye detector loaded!");
-        }
-
-        if (haarEyeGlasses.empty()) {
-            System.out.println("Error: Eyeglasses detector not loaded!");
-        } else {
-            System.out.println("Eyeglasses detector loaded!");
-        }
 
         if (haarEyePair.empty()) {
             System.out.println("Error: Eye pair detector not loaded!");
@@ -204,6 +194,7 @@ public class SceneController {
                 camera.read(frame);
                 if (!frame.empty()) {
                     // Only detect faces if toggle is enabled
+                    Core.flip(frame, frame, 1); //flip webcam horizontally so it isnt inverted.
                     if(faceDetectionEnabled){
                         detectAndDisplay(frame);
                     }
@@ -348,11 +339,11 @@ public class SceneController {
         } else {
             // No eyes detected in this frame
             long timeSinceLastEyes = System.currentTimeMillis() - lastEyeDetectedTime;
-            System.out.println("Eyes NOT detected!");
+            System.out.println("Eyes NOT detected");
 
             if (timeSinceLastEyes > EYE_DETECTION_THRESHOLD) {
                 // Eyes have been missing for more than 3 seconds --> only triggered once this is active
-                System.out.println("Eyes have not been detected for" + timeSinceLastEyes/1000 + "seconds");
+                System.out.println("for" + timeSinceLastEyes/1000 + "seconds");
                 if (!eyeWarningActive) {
                     eyeWarningActive = true;
                     Platform.runLater(() -> {
@@ -360,11 +351,14 @@ public class SceneController {
                             FXMLLoader loader = new FXMLLoader(getClass().getResource("video-window.fxml"));
                             Parent root = loader.load();
 
-                            Stage videoStage = new Stage();
-                            videoStage.setTitle("Not focused...");
-                            videoStage.setScene(new Scene(root));
-                            videoStage.show();
+                            StackPane wrapper = new StackPane(root);
+                            wrapper.setAlignment(Pos.BOTTOM_RIGHT);
+                            wrapper.setPadding(new Insets(20, 20, 20, 20));
 
+                            Stage videoStage = new Stage();
+                            videoStage.setTitle("Skeleton clashing meme");
+                            videoStage.setScene(new Scene(wrapper)); //set scene with the adjustments of position made
+                            videoStage.show();
                             // The video will auto-play
 
                         } catch (IOException e) {
@@ -406,7 +400,6 @@ public class SceneController {
     //increase saturation & flips if inverted by default
     private void enhanceFrame(Mat frame) {
         Mat hsv = new Mat();
-        Core.flip(frame, frame, 1); // Flips horizontally
         Imgproc.cvtColor(frame, hsv, Imgproc.COLOR_BGR2HSV);
 
         // Split into H, S, V channels
