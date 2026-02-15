@@ -333,7 +333,7 @@ public class SceneController {
             eyeWarningActive = false;  // Reset timer
             System.out.println("Eyes detected!");
             if(mediaPlayerController !=null){
-                mediaPlayerController.pause();
+                mediaPlayerController.dispose();
             }
 
         } else {
