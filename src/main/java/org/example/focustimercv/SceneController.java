@@ -11,24 +11,20 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.image.*;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.*;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.opencv.core.*;
 import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.videoio.VideoCapture;
-import javafx.scene.shape.Rectangle;
 
 
-import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 
 
@@ -82,6 +78,32 @@ public class SceneController {
     private boolean eyeWarningActive = false;
     boolean eyesDetectedThisFrame = false;
 
+    //Variables for pomodoro (alot)
+    private PomodoroTimer pomodoroTimer; //class object
+    private boolean userIsFocused = true;
+
+    // Add FXML components
+    @FXML private Label timerLabel;
+    @FXML private Label pomodoroCountLabel;
+    @FXML private Label sessionTypeLabel;
+    @FXML private Button startPomodoroBtn;
+    @FXML private Button pausePomodoroBtn;
+    @FXML private Button resetPomodoroBtn;
+    @FXML private Button skipPomodoroBtn;
+
+    //initialize main stage features
+    @FXML
+    public void initialize(){
+        //to load the tomato image in to the scene 1
+        if (tomato != null) { //when loading into scene 2, tomato isnt there so this will only run on scene 1 when tomato isnt null
+            loadImage();
+        }
+        mediaPlayerController = new MediaPlayerController(mediaView);
+        mediaPlayerController.loadAndPlay(videoPath);
+
+        initializePomodoroTimer();
+    }
+
     @FXML
     public void onButtonClick(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("video-window.fxml"));
@@ -119,17 +141,6 @@ public class SceneController {
         tomato.setImage(tomatoImg);
     }
 
-    //set media on the scene
-    @FXML
-    public void initialize(){
-        //to load the tomato image in to the scene 1
-        if (tomato != null) { //when loading into scene 2, tomato isnt there so this will only run on scene 1 when tomato isnt null
-            loadImage();
-        }
-        mediaPlayerController = new MediaPlayerController(mediaView);
-        mediaPlayerController.loadAndPlay(videoPath);
-    }
-
     @FXML
     public void toggleFaceDetection(ActionEvent event){
         faceDetectionEnabled = toggleFaceDetect.isSelected();
@@ -141,12 +152,45 @@ public class SceneController {
         }
     }
 
-    public void toggleGreyscale(ActionEvent event){
-        // Implement similarly for greyscale
+    private void initializePomodoroTimer() {
+        pomodoroTimer = new PomodoroTimer();
+
+        //add the timer first
+        if (timerLabel != null) {
+            pomodoroTimer.timeRemainingProperty().addListener((obs, old, newVal) -> {
+                timerLabel.setText(pomodoroTimer.getFormattedTime());
+            });
+            timerLabel.setText(pomodoroTimer.getFormattedTime());
+        }
+
+//        if (pomodoroCountLabel != null) {
+//            pomodoroTimer.completedPomodorosProperty().addListener((obs, old, newVal) -> {
+//                pomodoroCountLabel.setText("Pomodoros: " + newVal);
+//            });
+//            pomodoroCountLabel.setText("Pomodoros: 0");
+//        }
+        //set the initial session type (to work session)
+        if (sessionTypeLabel != null) {
+            pomodoroTimer.isWorkSessionProperty().addListener((obs, old, isWork) -> {
+                sessionTypeLabel.setText(isWork ? "Focus" : "Break");
+            });
+            sessionTypeLabel.setText("Focus");
+        }
+
+    }
+
+    @FXML
+    public void onStartPomodoro(ActionEvent event) {
+        pomodoroTimer.start();
+    }
+
+    @FXML
+    public void onPausePomodoro(ActionEvent event) {
+        pomodoroTimer.pause();
     }
 
 
-    @FXML
+        @FXML
     public void startCamera(ActionEvent event){
         System.out.println("Start camera button clicked!");
 
@@ -332,6 +376,13 @@ public class SceneController {
             lastEyeDetectedTime = System.currentTimeMillis();
             eyeWarningActive = false;  // Reset timer
             System.out.println("Eyes detected!");
+
+            //pomodoro timer is on when focused --> tells pomodoro that user is focused
+            if (!userIsFocused && pomodoroTimer != null) {
+                pomodoroTimer.onFocusGained();
+                userIsFocused = true;
+            }
+
             if(mediaPlayerController !=null){
                 mediaPlayerController.dispose();
             }
@@ -344,6 +395,12 @@ public class SceneController {
             if (timeSinceLastEyes > EYE_DETECTION_THRESHOLD) {
                 // Eyes have been missing for more than 3 seconds --> only triggered once this is active
                 System.out.println("for" + timeSinceLastEyes/1000 + "seconds");
+
+                if (userIsFocused && pomodoroTimer != null) {
+                    pomodoroTimer.onFocusLost();
+                    userIsFocused = false;
+                }
+
                 if (!eyeWarningActive) {
                     eyeWarningActive = true;
                     Platform.runLater(() -> {
