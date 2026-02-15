@@ -2,6 +2,7 @@ package org.example.focustimercv;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -491,6 +492,21 @@ public class SceneController {
         }
 
         return image;
+    }
+
+    // ---------- GUI METHODS ------------
+    @FXML
+    private void onOvalButtonHover(MouseEvent event) {
+        Node button = (Node) event.getSource();
+        button.setScaleX(0.95); //button will shrink a bit when hovered over to indicate button active.
+        button.setScaleY(0.95);
+    }
+
+    @FXML
+    private void onOvalButtonExit(MouseEvent event) {
+        Node button = (Node) event.getSource();
+        button.setScaleX(1.0);
+        button.setScaleY(1.0);
     }
 }
 
