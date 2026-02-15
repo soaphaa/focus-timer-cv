@@ -1,32 +1,24 @@
 package org.example.focustimercv;
 
-
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.image.*;
-import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.*;
 import javafx.stage.Stage;
 import org.opencv.core.*;
-import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.videoio.VideoCapture;
-
-
 import java.io.IOException;
-
 
 public class SceneController {
     private Stage stage;
@@ -41,9 +33,6 @@ public class SceneController {
     private MatOfRect matOfRect;
     String haarPath = "src/main/resources/org/example/focustimercv/haarcascade_frontalface_alt.xml"; //path to xml file
     String lbpPath = "src/main/resources/org/example/focustimercv/lbpcascade_frontalface.xml";
-
-    String haarEyePath = "src/main/resources/org/example/focustimercv/haarcascade_eye.xml";
-    String haarEyeglassesPath = "src/main/resources/org/example/focustimercv/haarcascade_eye_tree_eyeglasses.xml";
     String haarEyePairPath = "src/main/resources/org/example/focustimercv/haarcascade_mcs_eyepair_big.xml";
 
     @FXML
@@ -201,8 +190,6 @@ public class SceneController {
 
         // ------------- CASCADE DETECTORS INITIALIZING -------------
         cascadeFaceDetector = new CascadeClassifier();
-        haarEye = new CascadeClassifier(haarEyePath);
-        haarEyeGlasses = new CascadeClassifier(haarEyeglassesPath);
         haarEyePair = new CascadeClassifier(haarEyePairPath);
         // For HAAR (more accurate, slower)
         cascadeFaceDetector.load(haarPath);
