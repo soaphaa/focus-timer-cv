@@ -7,29 +7,25 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
+<?import javafx.scene.effect.DropShadow?>
 <AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="610.0" prefWidth="980.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.focustimercv.SceneController">
     <children>
+      <Label fx:id="sessionTypeLabel1" alignment="CENTER" contentDisplay="CENTER" layoutX="257.0" layoutY="332.0" prefHeight="31.0" prefWidth="72.0" text="Focus" textAlignment="CENTER" textFill="#faead8" textOverrun="CENTER_WORD_ELLIPSIS">
+         <font>
+            <Font size="25.0" />
+         </font>
+      </Label>
          <ImageView fx:id="webcamView" fitHeight="281.0" fitWidth="392.0" layoutX="540.0" layoutY="286.0" preserveRatio="true">
          <viewport>
             <Rectangle2D />
          </viewport>
       </ImageView>
       <Rectangle arcWidth="5.0" fill="#39329c00" height="281.0" layoutX="544.0" layoutY="286.0" stroke="#bf292a" strokeLineCap="ROUND" strokeLineJoin="ROUND" strokeType="OUTSIDE" strokeWidth="5.0" width="382.0" />
-        <Button fx:id="startCamera" layoutX="539.0" layoutY="222.0" mnemonicParsing="false" onMouseEntered="#onOvalButtonHover" onMouseExited="#onOvalButtonExit" prefHeight="46.0" prefWidth="201.0" style="-fx-background-color: #bf292a; -fx-background-radius: 15px; -fx-cursor: hand; -fx-border-color: #bf292a; -fx-border-radius: 15px; -fx-border-width: 2px;" text="Start Camera" textFill="white">
-            <font>
-                <Font name="System Bold" size="22.0" />
-            </font>
-        </Button>
-      <RadioButton fx:id="toggleFaceDetect" layoutX="755.0" layoutY="227.0" mnemonicParsing="false" onAction="#toggleFaceDetection" prefHeight="35.0" prefWidth="121.0" text="Detect Face" textFill="#bf292a">
+      <RadioButton fx:id="toggleFaceDetect" layoutX="564.0" layoutY="227.0" mnemonicParsing="false" onAction="#toggleFaceDetection" prefHeight="36.0" prefWidth="184.0" text="Detect Face" textFill="#bf292a">
          <font>
-            <Font size="16.0" />
+            <Font size="25.0" />
          </font>
       </RadioButton>
-        <HBox layoutX="10.0" layoutY="10.0" prefHeight="27.0" prefWidth="962.0">
-            <children>
-                <Label fx:id="welcomeText" alignment="CENTER" onMouseClicked="#onButtonClick" prefHeight="18.0" prefWidth="408.0" />
-            </children>
-        </HBox>
       <ImageView fx:id="tomato" fitHeight="405.0" fitWidth="490.0" layoutX="27.0" layoutY="23.0" pickOnBounds="true" preserveRatio="true" />
       <Label fx:id="timerLabel" alignment="CENTER" layoutX="135.0" layoutY="170.0" prefHeight="171.0" prefWidth="298.0" text="00:00" textFill="#faead8">
          <font>
@@ -40,10 +36,23 @@
       <Button layoutX="207.0" layoutY="420.0" mnemonicParsing="false" onAction="#onStartPomodoro" onMouseEntered="#onOvalButtonHover" onMouseExited="#onOvalButtonExit" prefHeight="50.0" prefWidth="122.0" style="-fx-background-color: #bf292a; -fx-background-radius: 15px; -fx-cursor: hand; -fx-border-color: #bf292a; -fx-border-radius: 15px; -fx-border-width: 2px;" text="START" textFill="WHITE">
          <font>
             <Font name="System Bold" size="22.0" />
-         </font></Button>
+         </font>
+          <effect>
+              <DropShadow color="#00000066" radius="10" spread="0.2" offsetX="2" offsetY="2"/>
+          </effect>
+      </Button>
       <Button layoutX="207.0" layoutY="479.0" mnemonicParsing="false" onAction="#onPausePomodoro" onMouseEntered="#onOvalButtonHover" onMouseExited="#onOvalButtonExit" prefHeight="35.0" prefWidth="122.0" style="-fx-background-color: #fef8d6; -fx-background-radius: 15px; -fx-cursor: hand; -fx-border-color: #fef8d6; -fx-border-radius: 15px; -fx-border-width: 2px;" text="PAUSE" textFill="#cf2f2f">
          <font>
             <Font name="System Bold" size="22.0" />
-         </font></Button>
+         </font>
+          <effect>
+              <DropShadow color="#00000066" radius="10" spread="0.2" offsetX="2" offsetY="2"/>
+          </effect>
+      </Button>
+      <Label fx:id="sessionTypeLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="540.0" layoutY="14.0" prefHeight="36.0" prefWidth="427.0" text="VisionPomodoro - Your enhanced focus timer" textAlignment="CENTER" textFill="#c7c7c7" textOverrun="CENTER_WORD_ELLIPSIS">
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Label>
     </children>
 </AnchorPane>

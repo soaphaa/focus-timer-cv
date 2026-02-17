@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<?import javafx.scene.effect.DropShadow?>
+<AnchorPane prefHeight="610.0" prefWidth="980.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.focustimercv.TitleController">
+   <children>
+       <Button layoutX="428.0" layoutY="404.0" mnemonicParsing="false" onAction="#handleStartButton" onMouseEntered="#onOvalButtonHover" onMouseExited="#onOvalButtonExit" prefHeight="50.0" prefWidth="122.0" style="-fx-background-color: #bf292a; -fx-background-radius: 15px; -fx-cursor: hand; -fx-border-color: #bf292a; -fx-border-radius: 15px; -fx-border-width: 2px;" text="Submit" textFill="WHITE">
+           <font>
+               <Font name="System Bold" size="22.0" />
+           </font>
+           <effect>
+               <DropShadow color="#00000066" radius="10" spread="0.2" offsetX="2" offsetY="2"/>
+           </effect>
+       </Button>   </children>
+</AnchorPane>

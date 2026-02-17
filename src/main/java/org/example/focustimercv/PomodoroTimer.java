@@ -10,6 +10,7 @@ public class PomodoroTimer {
     // Settings (in minutes)
     private int workMinutes = 25; //default settings
     private int breakMinutes = 5; //default settings
+    public static String modeStatus;
 
     //GUI binds
     private final IntegerProperty timeRemaining = new SimpleIntegerProperty(25 * 60); //updates the time remaining on the GUI timer.
@@ -129,6 +130,15 @@ public class PomodoroTimer {
         this.breakMinutes = minutes;
         if (!isWorkSession.get() && !isRunning.get()) {
             timeRemaining.set(minutes * 60);
+        }
+    }
+
+    public void displayStatus(){
+        if(isWorkSession() == true){
+            modeStatus = "Focus In Session";
+        }
+        else if(isWorkSession() == false){
+            modeStatus = "Break in Session";
         }
     }
 }

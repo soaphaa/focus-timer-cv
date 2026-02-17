@@ -49,6 +49,7 @@ public class SceneController {
 
     //-------- Media Video scene variables --------------
     @FXML
+    private Stage videoStage = null;  // reference to video window
     private MediaView mediaView;
     private MediaPlayerController mediaPlayerController;
     String videoPath = getClass().getResource("/org/example/focustimercv/videos/skeleton_shield_meme.mp4").toExternalForm();
@@ -100,20 +101,6 @@ public class SceneController {
             initializeCamera(); //set camera
             initializePomodoroTimer(); //set timer to be visible
         }
-    }
-
-    @FXML
-    public void onButtonClick(ActionEvent event) throws IOException {
-        root = FXMLLoader.load(getClass().getResource("video-window.fxml"));
-
-        // Create a new stage for the new window
-        Stage newStage = new Stage();
-        newStage.setTitle("Skeleton Shield Meme");
-
-        // Set the scene on a new stage
-        scene = new Scene(root);
-        newStage.setScene(scene);
-        newStage.show();
     }
 
     @FXML
@@ -303,7 +290,7 @@ public class SceneController {
                     new Point(rect.x, rect.y),
                     new Point(rect.x + rect.width, rect.y + rect.height),
                     new Scalar(41 ,42, 191),  // Red color (BGR format)
-                    2                        // Thickness
+                    3                        // Thickness
             );
             
 
@@ -314,9 +301,9 @@ public class SceneController {
                     "FACE",                              // Text to display
                     new Point(rect.x, rect.y - 10),      // Position (10 pixels above rectangle)
                     Imgproc.FONT_HERSHEY_SIMPLEX,
-                    0.6,
+                    1.0,
                     new Scalar(41, 42, 191),
-                    2                                     // Thickness
+                    1                                    // Thickness
             );
 
             // faceROI means --> Extract stuff from just the face region from the grayscale frame
@@ -354,7 +341,7 @@ public class SceneController {
                         new Point(rect.x + eye.x, rect.y + eye.y),
                         new Point(rect.x + eye.x + eye.width, rect.y + eye.y + eye.height),
                         new Scalar(0, 255, 255),  //colour for eyes rectangles
-                        1
+                        3 //THICKNESS
                 );
 
                 // "EYES " label
@@ -363,9 +350,9 @@ public class SceneController {
                         "eyes",
                         new Point(rect.x + eye.x, rect.y + eye.y - 10),
                         Imgproc.FONT_HERSHEY_SIMPLEX,
-                        0.5,
+                        1.0,
                         new Scalar(0, 255, 255),
-                        1
+                        1 //THICKNESS
                 );
             }
         }
@@ -376,6 +363,14 @@ public class SceneController {
             lastEyeDetectedTime = System.currentTimeMillis();
             eyeWarningActive = false;  // Reset timer
             System.out.println("Eyes detected!");
+
+            // Close video window if it's open
+            if (videoStage != null) {
+                Platform.runLater(() -> {
+                    videoStage.close();
+                    videoStage = null;  // Clear the reference
+                });
+            }
 
             //pomodoro timer is on when focused --> tells pomodoro that user is focused
             if (!userIsFocused && pomodoroTimer != null) {
@@ -408,14 +403,13 @@ public class SceneController {
                             wrapper.setAlignment(Pos.BOTTOM_RIGHT);
                             wrapper.setPadding(new Insets(20, 20, 20, 20));
 
-                            Stage videoStage = new Stage();
+                            videoStage = new Stage();  // Save to class variable
                             videoStage.setTitle("Skeleton clashing meme");
                             videoStage.setScene(new Scene(wrapper)); //set scene with the adjustments of position made
                             videoStage.initModality(Modality.APPLICATION_MODAL); // blocks parent window
                             videoStage.setAlwaysOnTop(true); // stays above ALL other windows on your OS
                             videoStage.show();
-
-                            // The video will auto-play
+                            System.out.println("Video window opened, should be playing by now");
 
                         } catch (IOException e) {
                             System.out.println("Error opening video window: " + e.getMessage());
