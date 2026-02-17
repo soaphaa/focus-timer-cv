@@ -21,7 +21,7 @@ public class Main extends Application {
         StackPane centeredRoot = new StackPane(root);
         Scene scene = new Scene(centeredRoot);
 
-        stage.setTitle("Focus Timer CV");
+        stage.setTitle("Pomodoro Timer");
         stage.setScene(scene);
         stage.setX(20);
         stage.setY(20);

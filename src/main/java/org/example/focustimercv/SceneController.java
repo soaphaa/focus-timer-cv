@@ -14,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.image.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
@@ -88,10 +89,17 @@ public class SceneController {
         if (tomato != null) { //when loading into scene 2, tomato isnt there so this will only run on scene 1 when tomato isnt null
             loadImage();
         }
-        mediaPlayerController = new MediaPlayerController(mediaView);
-        mediaPlayerController.loadAndPlay(videoPath);
 
-        initializePomodoroTimer();
+        if(mediaView !=null) {
+            mediaPlayerController = new MediaPlayerController(mediaView);
+            mediaPlayerController.loadAndPlay(videoPath);
+        }
+
+        if (webcamView != null) {
+            webcamView.setVisible(false);         //hide webcam initially
+            initializeCamera(); //set camera
+            initializePomodoroTimer(); //set timer to be visible
+        }
     }
 
     @FXML
@@ -172,17 +180,19 @@ public class SceneController {
     @FXML
     public void onStartPomodoro(ActionEvent event) {
         pomodoroTimer.start();
+        webcamView.setVisible(true);
     }
 
     @FXML
     public void onPausePomodoro(ActionEvent event) {
         pomodoroTimer.pause();
+        webcamView.setVisible(false);
     }
 
-
-        @FXML
-    public void startCamera(ActionEvent event){
-        System.out.println("Start camera button clicked!");
+    @FXML
+    public void initializeCamera(){
+        System.out.println("Starting camera");
+        lastEyeDetectedTime = System.currentTimeMillis();
 
         if (running) {
             System.out.println("Camera already running");
@@ -223,21 +233,25 @@ public class SceneController {
             Mat frame = new Mat();
 
             while (running && camera.isOpened()) {
-                camera.read(frame);
-                if (!frame.empty()) {
-                    // Only detect faces if toggle is enabled
-                    Core.flip(frame, frame, 1); //flip webcam horizontally so it isnt inverted.
-                    if(faceDetectionEnabled){
-                        detectAndDisplay(frame);
-                    }
-                    enhanceFrame(frame); //enhance colors if you have a poor quality webcam like me
-                    Image image = matToImage(frame);
-                    // Update UI
-                    Platform.runLater(() -> webcamView.setImage(image));
+                boolean success = camera.read(frame);
+
+                if (!success || frame.empty()) {
+                    // Skip this frame silently instead of crashing
+                    try { Thread.sleep(100); } catch (InterruptedException e) { break; }
+                    continue;  // Try next frame
                 }
 
+                // Frame is guaranteed good here - no need for second read or empty check!
+                Core.flip(frame, frame, 1);
+                if (faceDetectionEnabled) {
+                    detectAndDisplay(frame);
+                }
+                enhanceFrame(frame);
+                Image image = matToImage(frame);
+                Platform.runLater(() -> webcamView.setImage(image));
+
                 try {
-                    Thread.sleep(30); // ~33 FPS
+                    Thread.sleep(50);
                 } catch (InterruptedException e) {
                     break;
                 }
@@ -259,6 +273,7 @@ public class SceneController {
     }
 
     private void detectAndDisplay(Mat frame) {
+        eyesDetectedThisFrame = false;
         MatOfRect faces = new MatOfRect();
         MatOfRect eyePairs = new MatOfRect();
         Mat grayFrame = new Mat();
@@ -279,9 +294,6 @@ public class SceneController {
                 new Size(50, 50),    // Min face size
                 new Size()           // Max face size (no limit)
         );
-
-        // Track if we detect ANY eyes in this frame
-        boolean eyesDetectedThisFrame = false;
 
         // Draw rectangles around detected faces
         Rect[] facesArray = faces.toArray();
@@ -312,13 +324,13 @@ public class SceneController {
 
             // Detect eye pair
             haarEyePair.detectMultiScale(
-                    faceROI,             // Search only in the face region
+                    faceROI,
                     eyePairs,
-                    1.1,                 // Scale factor
-                    1,
+                    1.05,        // Thorough search
+                    1,           // 1 detection only
                     0,
-                    new Size(35, 20),    // Min eye size ( to avoid nostrils being detected as eyes...
-                    new Size() //no max eye size
+                    new Size(20, 10),   // ← Changed from (35,20) - smaller minimum size
+                    new Size()
             );
 
 //            //Temporary detector indicators
@@ -371,10 +383,6 @@ public class SceneController {
                 userIsFocused = true;
             }
 
-            if(mediaPlayerController !=null){
-                mediaPlayerController.dispose();
-            }
-
         } else {
             // No eyes detected in this frame
             long timeSinceLastEyes = System.currentTimeMillis() - lastEyeDetectedTime;
@@ -403,7 +411,10 @@ public class SceneController {
                             Stage videoStage = new Stage();
                             videoStage.setTitle("Skeleton clashing meme");
                             videoStage.setScene(new Scene(wrapper)); //set scene with the adjustments of position made
+                            videoStage.initModality(Modality.APPLICATION_MODAL); // blocks parent window
+                            videoStage.setAlwaysOnTop(true); // stays above ALL other windows on your OS
                             videoStage.show();
+
                             // The video will auto-play
 
                         } catch (IOException e) {
