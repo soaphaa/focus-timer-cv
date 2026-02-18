@@ -1,18 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<?import javafx.scene.effect.DropShadow?>
 <AnchorPane prefHeight="610.0" prefWidth="980.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.focustimercv.TitleController">
    <children>
-       <Button layoutX="428.0" layoutY="404.0" mnemonicParsing="false" onAction="#handleStartButton" onMouseEntered="#onOvalButtonHover" onMouseExited="#onOvalButtonExit" prefHeight="50.0" prefWidth="122.0" style="-fx-background-color: #bf292a; -fx-background-radius: 15px; -fx-cursor: hand; -fx-border-color: #bf292a; -fx-border-radius: 15px; -fx-border-width: 2px;" text="Submit" textFill="WHITE">
-           <font>
-               <Font name="System Bold" size="22.0" />
-           </font>
+       <Pane layoutX="325.0" layoutY="110.0" prefHeight="449.0" prefWidth="330.0" style="-fx-background-color:#e35959; -fx-background-radius: 15px; -fx-padding: 20;">
            <effect>
-               <DropShadow color="#00000066" radius="10" spread="0.2" offsetX="2" offsetY="2"/>
+               <DropShadow color="#00000033" offsetX="0" offsetY="4" radius="15" spread="0.1" />
            </effect>
-       </Button>   </children>
+         <children>
+             <Button layoutX="36.0" layoutY="60.0" mnemonicParsing="false" onAction="#handleStartButton" onMouseEntered="#onOvalButtonHover" onMouseExited="#onOvalButtonExit" prefHeight="32.0" prefWidth="102.0" style="-fx-background-color: #bf292a; -fx-background-radius: 15px; -fx-cursor: hand; -fx-border-color: #bf292a; -fx-border-radius: 15px; -fx-border-width: 2px;" text="Apply" textFill="WHITE" translateX="78.0" translateY="315.0">
+                 <font>
+                     <Font name="System Bold" size="22.0" />
+                 </font>
+                 <effect>
+                     <DropShadow color="#00000066" offsetX="2" offsetY="2" radius="10" spread="0.2" />
+                 </effect>
+             </Button>
+            <Label alignment="CENTER" layoutX="32.0" layoutY="14.0" prefHeight="44.0" prefWidth="267.0" text="Choose Focus" textFill="#592525">
+               <font>
+                  <Font name="Calibri Bold" size="29.0" />
+               </font>
+            </Label>
+            <Label alignment="CENTER" layoutX="27.0" layoutY="50.0" prefHeight="32.0" prefWidth="277.0" text="25 min recommended!" textFill="#bf292a">
+               <font>
+                  <Font name="Calibri" size="13.0" />
+               </font>
+            </Label>
+            <Separator layoutX="13.0" layoutY="86.0" prefHeight="5.0" prefWidth="307.0" />
+            <Separator layoutX="12.0" layoutY="358.0" prefHeight="5.0" prefWidth="307.0" />
+
+             <VBox layoutX="12.0" layoutY="77.0" spacing="12" style="-fx-padding: 20;">
+
+                 <VBox fx:id="card1" onMouseClicked="#onSelectMode" onMouseEntered="#onOvalButtonHover" onMouseExited="#onOvalButtonExit" style="-fx-background-color: white; -fx-background-radius: 12px; -fx-padding: 15 20; -fx-cursor: hand;">
+                     <effect><DropShadow color="#00000022" offsetX="0" offsetY="3" radius="8" spread="0.1" /></effect>
+                     <HBox alignment="CENTER_LEFT">
+                         <VBox HBox.hgrow="ALWAYS">
+                             <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #592525;" text="Focus" />
+                             <Label style="-fx-font-size: 13px; -fx-text-fill: #a17a7a;" text="10 min focus + 3 min break" />
+                         </VBox>
+                         <Label fx:id="check1" style="-fx-font-size: 18px; -fx-text-fill: #a17a7a; -fx-opacity: 0;" text="✓" />
+                     </HBox>
+                 </VBox>
+
+                 <VBox fx:id="card2" onMouseClicked="#onSelectMode" onMouseEntered="#onOvalButtonHover" onMouseExited="#onOvalButtonExit" style="-fx-background-color: white; -fx-background-radius: 12px; -fx-padding: 15 20; -fx-cursor: hand;">
+                     <effect><DropShadow color="#00000022" offsetX="0" offsetY="3" radius="8" spread="0.1" /></effect>
+                     <HBox alignment="CENTER_LEFT">
+                         <VBox HBox.hgrow="ALWAYS">
+                             <Label style="-fx-font-size: 18px; -fx-font-weight: bold;-fx-text-fill: #592525;"  text="Work" />
+                             <Label style="-fx-font-size: 13px; -fx-text-fill: #a17a7a;" text="25 min focus + 5 min break" />
+                         </VBox>
+                         <Label fx:id="check2" style="-fx-font-size: 18px; -fx-text-fill: #a17a7a; -fx-opacity: 0;" text="✓" />
+                     </HBox>
+                 </VBox>
+
+                 <VBox fx:id="card3" onMouseClicked="#onSelectMode" onMouseEntered="#onOvalButtonHover" onMouseExited="#onOvalButtonExit" style="-fx-background-color: white; -fx-background-radius: 12px; -fx-padding: 15 20; -fx-cursor: hand;">
+                     <effect><DropShadow color="#00000022" offsetX="0" offsetY="3" radius="8" spread="0.1" /></effect>
+                     <HBox alignment="CENTER_LEFT">
+                         <VBox HBox.hgrow="ALWAYS">
+                             <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #592525;" text="Study" />
+                             <Label style="-fx-font-size: 13px; -fx-text-fill: #a17a7a;" text="45 min focus + 15 min break" />
+                         </VBox>
+                         <Label fx:id="check3" style="-fx-font-size: 18px; -fx-text-fill: #a17a7a; -fx-opacity: 0;" text="✓" />
+                     </HBox>
+                 </VBox>
+
+             </VBox>
+         </children>
+       </Pane>
+       <Pane layoutX="325.0" layoutY="32.0" prefHeight="62.0" prefWidth="330.0" style="-fx-background-color: white; -fx-background-radius: 15px; -fx-padding: 20;">
+           <effect>
+               <DropShadow color="#00000033" offsetX="0" offsetY="4" radius="15" spread="0.1" />
+           </effect>
+         <children>
+            <Label alignment="CENTER" layoutY="14.0" prefHeight="44.0" prefWidth="330.0" text="Vision Pomodoro!" textFill="#e18d8d">
+               <font>
+                  <Font name="Calibri" size="20.0" />
+               </font>
+            </Label>
+         </children>
+       </Pane>
+
+   </children>
 </AnchorPane>

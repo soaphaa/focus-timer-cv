@@ -50,7 +50,9 @@ public class SceneController {
     //-------- Media Video scene variables --------------
     @FXML
     private Stage videoStage = null;  // reference to video window
+    @FXML
     private MediaView mediaView;
+    @FXML
     private MediaPlayerController mediaPlayerController;
     String videoPath = getClass().getResource("/org/example/focustimercv/videos/skeleton_shield_meme.mp4").toExternalForm();
 
@@ -91,7 +93,7 @@ public class SceneController {
             loadImage();
         }
 
-        if(mediaView !=null) {
+        if (mediaView != null) {
             mediaPlayerController = new MediaPlayerController(mediaView);
             mediaPlayerController.loadAndPlay(videoPath);
         }
@@ -148,13 +150,6 @@ public class SceneController {
             timerLabel.setText(pomodoroTimer.getFormattedTime());
         }
 
-//        if (pomodoroCountLabel != null) {
-//            pomodoroTimer.completedPomodorosProperty().addListener((obs, old, newVal) -> {
-//                pomodoroCountLabel.setText("Pomodoros: " + newVal);
-//            });
-//            pomodoroCountLabel.setText("Pomodoros: 0");
-//        }
-        //set the initial session type (to work session)
         if (sessionTypeLabel != null) {
             pomodoroTimer.isWorkSessionProperty().addListener((obs, old, isWork) -> {
                 sessionTypeLabel.setText(isWork ? "Focus" : "Break");
@@ -164,16 +159,69 @@ public class SceneController {
 
     }
 
+    //set the pomodoro to what user set in titleController.
+    public void setPomodoroMode(String mode) {
+        if (pomodoroTimer == null) {
+            System.out.println("Warning: pomodoroTimer not initialized yet");
+            return;
+        }
+
+        switch (mode) {
+            case "10Min":
+                pomodoroTimer.setWorkMinutes(10);
+                pomodoroTimer.setBreakMinutes(2);
+                System.out.println("Pomodoro set to: 10 min work / 2 min break");
+                break;
+
+            case "25Min":
+                pomodoroTimer.setWorkMinutes(25);
+                pomodoroTimer.setBreakMinutes(5);
+                System.out.println("Pomodoro set to: 25 min work / 5 min break");
+                break;
+
+            case "45Min":
+                pomodoroTimer.setWorkMinutes(45);
+                pomodoroTimer.setBreakMinutes(10);
+                System.out.println("Pomodoro set to: 45 min work / 10 min break");
+                break;
+
+            default:
+                System.out.println("Unknown mode: " + mode);
+                // Default to 25/5
+                pomodoroTimer.setWorkMinutes(25);
+                pomodoroTimer.setBreakMinutes(5);
+        }
+
+        // Update the timer display
+        if (timerLabel != null) {
+            timerLabel.setText(pomodoroTimer.getFormattedTime());
+        }
+    }
+
     @FXML
     public void onStartPomodoro(ActionEvent event) {
         pomodoroTimer.start();
         webcamView.setVisible(true);
+        faceDetectionEnabled = toggleFaceDetect.isSelected();
+
+        if (faceDetectionEnabled) {
+            System.out.println("Face detection ENABLED");
+        } else {
+            System.out.println("Face detection DISABLED");
+        }
     }
 
     @FXML
     public void onPausePomodoro(ActionEvent event) {
         pomodoroTimer.pause();
         webcamView.setVisible(false);
+        faceDetectionEnabled = toggleFaceDetect.isDisable();
+
+        if (faceDetectionEnabled) {
+            System.out.println("Face detection ENABLED");
+        } else {
+            System.out.println("Face detection DISABLED");
+        }
     }
 
     @FXML
@@ -230,7 +278,7 @@ public class SceneController {
 
                 // Frame is guaranteed good here - no need for second read or empty check!
                 Core.flip(frame, frame, 1);
-                if (faceDetectionEnabled) {
+                if (faceDetectionEnabled && pomodoroTimer != null && pomodoroTimer.isWorkSession()) { //only detect when work session is active and pomodoro is on
                     detectAndDisplay(frame);
                 }
                 enhanceFrame(frame);

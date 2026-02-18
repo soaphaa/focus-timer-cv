@@ -5,17 +5,14 @@
 <?import javafx.scene.media.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.focustimercv.SceneController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.focustimercv.SceneController">
     <children>
-      <MediaView fx:id="mediaView" fitHeight="500.0" fitWidth="500.0" />
-        <Label fx:id="label1" alignment="CENTER" contentDisplay="CENTER" layoutX="85.0" layoutY="315.0" prefHeight="86.0" prefWidth="329.0" text="Timer paused.. lock in bro" textFill="RED" textOverrun="CENTER_ELLIPSIS" underline="true">
+      <MediaView fx:id="mediaView" fitHeight="400.0" fitWidth="500.0" />
+        <Label fx:id="label1" alignment="CENTER" contentDisplay="CENTER" layoutX="43.0" layoutY="308.0" prefHeight="50.0" prefWidth="413.0" text="Working hard or hardly working bro.." textFill="RED" textOverrun="CENTER_ELLIPSIS" style="-fx-effect: dropshadow(three-pass-box, black, 0, 1, 1, 1);">
          <font>
-            <Font size="26.0" />
-         </font></Label>
-      <HBox alignment="CENTER" layoutX="8.0" layoutY="454.0" prefHeight="31.0" prefWidth="482.0" spacing="10.0">
-         <children>
-            <Button fx:id="returnBtn" layoutX="252.0" layoutY="12.0" mnemonicParsing="false" onAction="#onReturnButtonClick" text="RETURN TO TIMER" />
-         </children>
-      </HBox>
+            <Font name="System Bold" size="20.0" />
+         </font>
+        </Label>
+      <Button fx:id="returnBtn" layoutX="370.0" layoutY="368.0" mnemonicParsing="false" onAction="#onReturnButtonClick" text="RETURN TO TIMER" />
     </children>
 </AnchorPane>

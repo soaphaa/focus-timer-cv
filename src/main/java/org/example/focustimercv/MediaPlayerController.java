@@ -11,9 +11,16 @@ public class MediaPlayerController {
 
         public MediaPlayerController(MediaView mediaView) {
             this.mediaView = mediaView;
+            if (this.mediaView == null) {
+                System.out.println("Warning: MediaView is null - controller disabled");
+            }
         }
 
         public void loadAndPlay(String videoPath) {
+            if (mediaView == null) {
+                System.out.println("Cannot load media - MediaView is null");
+                return;
+            }
             try {
                 media = new Media(videoPath);
                 mediaPlayer = new MediaPlayer(media);
