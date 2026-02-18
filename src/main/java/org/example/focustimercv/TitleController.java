@@ -23,7 +23,7 @@ public class TitleController {
     private Label selectedCheck = null;
     private String selectedMode = null; // your variable
     private static final String UNSELECTED = "-fx-background-color: white; -fx-background-radius: 12px; -fx-padding: 15 20; -fx-cursor: hand;";
-    private static final String SELECTED   = "-fx-background-color: #f0f0f0; -fx-background-radius: 12px; -fx-padding: 15 20; -fx-cursor: hand;";
+    private static final String SELECTED   = "-fx-background-color: #e3e3e3; -fx-background-radius: 12px; -fx-padding: 15 20; -fx-cursor: hand;";
 
     @FXML
     public void onSelectMode(MouseEvent event) {
@@ -61,6 +61,11 @@ public class TitleController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("hello-view.fxml")); // main fxml file
         Parent root = loader.load();
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+        if (selectedMode == null) {
+            selectedMode = "1Min"; //set as default
+            System.out.println("No mode selected - defaulting to" + selectedMode);
+        }
 
         // Get the SceneController and pass the selected mode
         SceneController sceneController = loader.getController();

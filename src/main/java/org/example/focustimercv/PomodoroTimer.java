@@ -13,7 +13,7 @@ public class PomodoroTimer {
     public static String modeStatus;
 
     //GUI binds
-    private final IntegerProperty timeRemaining = new SimpleIntegerProperty(25 * 60); //updates the time remaining on the GUI timer.
+    private final IntegerProperty timeRemaining = new SimpleIntegerProperty(); //updates the time remaining on the GUI timer.
     private final BooleanProperty isRunning = new SimpleBooleanProperty(false);
     private final BooleanProperty isWorkSession = new SimpleBooleanProperty(true); //for when focus detector will be active
     private final IntegerProperty completedPomodoros = new SimpleIntegerProperty(0);
@@ -23,6 +23,7 @@ public class PomodoroTimer {
     private boolean autoPausedByFocus = false; //for eyeDetector
 
     public PomodoroTimer() {
+        timeRemaining.set(workMinutes * 60); //Initial default value
         timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> tick()));
         timeline.setCycleCount(Timeline.INDEFINITE);
     }
@@ -121,7 +122,7 @@ public class PomodoroTimer {
     // Settings
     public void setWorkMinutes(int minutes) {
         this.workMinutes = minutes;
-        if (isWorkSession.get() && !isRunning.get()) {
+        if (isWorkSession.get()) {
             timeRemaining.set(minutes * 60);
         }
     }
@@ -131,6 +132,14 @@ public class PomodoroTimer {
         if (!isWorkSession.get() && !isRunning.get()) {
             timeRemaining.set(minutes * 60);
         }
+    }
+
+    public int getWorkMinutes() {
+        return workMinutes;
+    }
+
+    public int getBreakMinutes() {
+        return breakMinutes;
     }
 
     public void displayStatus(){
