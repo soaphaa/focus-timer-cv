@@ -186,10 +186,12 @@ public class SceneController {
                 break;
 
             default:
-                System.out.println("Unknown mode: " + mode);
+                System.out.println("No mode selected - using default: " + pomodoroTimer.getWorkMinutes() + " min");
                 // Default to 25/5
-                pomodoroTimer.setWorkMinutes(25);
-                pomodoroTimer.setBreakMinutes(5);
+                pomodoroTimer.setWorkMinutes(1);
+                pomodoroTimer.setBreakMinutes(1);
+                pomodoroTimer.timeRemainingProperty().set(pomodoroTimer.getWorkMinutes() * 60);
+
         }
 
         // Update the timer display
