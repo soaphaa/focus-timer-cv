@@ -47,6 +47,9 @@ public class SceneController {
     @FXML
     private RadioButton toggleFaceDetect;
 
+    @FXML
+    private Label breakMode;
+
     //-------- Media Video scene variables --------------
     @FXML
     private Stage videoStage = null;  // reference to video window
@@ -56,11 +59,6 @@ public class SceneController {
     private MediaPlayerController mediaPlayerController;
     String videoPath = getClass().getResource("/org/example/focustimercv/videos/skeleton_shield_meme.mp4").toExternalForm();
 
-    @FXML
-    private Button playBtn;
-
-    @FXML
-    private Button pauseBtn;
     //-------- --------------------------- --------------
     private VideoCapture camera;
     private volatile boolean running = false;
@@ -80,10 +78,6 @@ public class SceneController {
     @FXML private Label timerLabel;
     @FXML private Label pomodoroCountLabel;
     @FXML private Label sessionTypeLabel;
-    @FXML private Button startPomodoroBtn;
-    @FXML private Button pausePomodoroBtn;
-    @FXML private Button resetPomodoroBtn;
-    @FXML private Button skipPomodoroBtn;
 
     //initialize main stage features
     @FXML
@@ -114,13 +108,24 @@ public class SceneController {
     }
 
     @FXML
-    public void onPlayBtn (ActionEvent event){
-        mediaPlayerController.play();
-    }
+    public void onResetPomodoro(ActionEvent event) {
+        // Show confirmation dialog
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Reset Timer");
+        confirmAlert.setHeaderText("Are you sure you want to reset the timer?");
+        confirmAlert.setContentText("This will reset to " +
+                (pomodoroTimer.isWorkSession() ? pomodoroTimer.getWorkMinutes() + " min work" :
+                        pomodoroTimer.getBreakMinutes() + " min break"));
 
-    @FXML
-    public void onPauseBtn (ActionEvent event){
-        mediaPlayerController.pause();
+        // Wait for user response
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                pomodoroTimer.reset();
+                System.out.println("Timer reset to " + pomodoroTimer.getFormattedTime());
+            } else {
+                System.out.println("Reset cancelled");
+            }
+        });
     }
 
     private void loadImage() {
@@ -366,7 +371,7 @@ public class SceneController {
                     1.05,        // Thorough search
                     1,           // 1 detection only
                     0,
-                    new Size(20, 10),   // ← Changed from (35,20) - smaller minimum size
+                    new Size(30, 20),
                     new Size()
             );
 
@@ -563,6 +568,7 @@ public class SceneController {
         button.setScaleX(1.0);
         button.setScaleY(1.0);
     }
+
 }
 
 

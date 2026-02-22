@@ -28,6 +28,19 @@ public class PomodoroTimer {
         timeline.setCycleCount(Timeline.INDEFINITE);
     }
 
+    public void reset() {
+        timeline.stop();
+        isRunning.set(false);
+
+        if (isWorkSession.get()) {
+            timeRemaining.set(workMinutes * 60);
+        } else {
+            timeRemaining.set(breakMinutes * 60);
+        }
+
+        System.out.println("Timer reset to " + getFormattedTime());
+    }
+
     //updating timer by each tick counting down
     private void tick() {
         if (timeRemaining.get() > 0) {
